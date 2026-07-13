@@ -1,0 +1,57 @@
+{
+  "servers": [
+    {
+      "name": "filesystem",
+      "transport": "stdio",
+      "command": "python",
+      "args": ["../mcp_servers/filesystem_server/main.py"],
+      "env": {
+        "WORKSPACE_ROOT": ".."
+      },
+      "enabled": true
+    },
+    {
+      "name": "github",
+      "transport": "stdio",
+      "command": "python",
+      "args": ["../mcp_servers/github_server/main.py"],
+      "env": {
+        "GITHUB_TOKEN": ""
+      },
+      "enabled": true
+    },
+    {
+      "name": "sqlite",
+      "transport": "stdio",
+      "command": "python",
+      "args": ["../mcp_servers/sql_server/main.py"],
+      "enabled": true
+    },
+    {
+      "name": "notes",
+      "transport": "stdio",
+      "command": "python",
+      "args": ["../mcp_servers/notes_server/main.py"],
+      "enabled": true
+    },
+    {
+      "name": "weather",
+      "transport": "stdio",
+      "command": "python",
+      "args": ["../mcp_servers/weather_server/main.py"],
+      "enabled": true
+    },
+    {
+      "name": "github-remote",
+      "transport": "sse",
+      "url": "http://localhost:8001/sse",
+      "enabled": false
+    },
+    {
+      "name": "notes-remote",
+      "transport": "streamable-http",
+      "url": "http://localhost:8002/mcp",
+      "enabled": false
+    }
+  ]
+}

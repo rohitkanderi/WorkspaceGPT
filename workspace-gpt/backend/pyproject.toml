@@ -1,0 +1,13 @@
+[project]
+name = "workspace-gpt-backend"
+version = "0.1.0"
+description = "FastAPI backend and MCP client for WorkspaceGPT."
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]

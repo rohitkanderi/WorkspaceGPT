@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkspaceGPT</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>WorkspaceGPT</h1>
+        <p id="health">Checking backend...</p>
+      </div>
+      <button id="refresh">Refresh</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>MCP Servers</h2>
+          <button id="connect-all">Connect all</button>
+        </div>
+        <div id="servers" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Tools</h2>
+          <button id="discover">Discover</button>
+        </div>
+        <div id="tools" class="list"></div>
+      </section>
+
+      <section class="panel workspace">
+        <h2>Call Tool</h2>
+        <form id="tool-form">
+          <label>
+            Server
+            <input id="server-name" name="server_name" placeholder="optional" />
+          </label>
+          <label>
+            Tool
+            <input id="tool-name" name="tool_name" placeholder="tool name" required />
+          </label>
+          <label>
+            Arguments JSON
+            <textarea id="arguments" name="arguments" rows="8">{}</textarea>
+          </label>
+          <button type="submit">Run</button>
+        </form>
+        <pre id="result"></pre>
+      </section>
+    </main>
+
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>
