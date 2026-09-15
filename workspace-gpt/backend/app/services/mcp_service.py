@@ -59,3 +59,9 @@ def get_mcp_service() -> MCPService:
     if _mcp_service is None:
         _mcp_service = MCPService()
     return _mcp_service
+
+
+async def close_mcp_service() -> None:
+    """Disconnect the process-wide MCP service if it has been created."""
+    if _mcp_service is not None:
+        await _mcp_service.disconnect()

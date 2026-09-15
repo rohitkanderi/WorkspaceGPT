@@ -15,6 +15,7 @@ from app.api import api_router
 from app.core.config import settings
 from app.database.base import Base, import_models
 from app.database.engine import engine
+from app.services import close_mcp_service
 
 _BACKEND_ROOT = Path(__file__).resolve().parents[1]
 _PROJECT_ROOT = _BACKEND_ROOT.parent
@@ -28,7 +29,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     import_models()
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
-    yield
+    try:
+        yield
+    finally:
+        await close_mcp_service()
 
 
 def create_app() -> FastAPI:

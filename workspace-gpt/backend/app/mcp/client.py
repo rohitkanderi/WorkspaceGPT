@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+import sys
+import asyncio
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -295,7 +297,14 @@ class MCPClient:
         """Tear down a server connection and clear cached tools."""
         connection = self._get_connection(server_name)
         if connection.exit_stack is not None:
-            await connection.exit_stack.aclose()
+            try:
+                await connection.exit_stack.aclose()
+            except (Exception, asyncio.CancelledError) as exc:
+                logger.debug(
+                    "Ignoring MCP stdio cleanup error for server '%s': %s",
+                    server_name,
+                    exc,
+                )
         connection.exit_stack = None
         connection.session = None
         connection.tools.clear()
@@ -375,7 +384,7 @@ class MCPClient:
             )
 
         params = StdioServerParameters(
-            command=config.command,
+            command=_stdio_command(config.command),
             args=config.args,
             env=_stdio_env(config.env),
         )
@@ -436,6 +445,13 @@ def _stdio_env(config_env: dict[str, str] | None) -> dict[str, str] | None:
     for key, value in config_env.items():
         env[key] = os.environ.get(key, value) if value == "" else value
     return env
+
+
+def _stdio_command(command: str) -> str:
+    """Use the running Python interpreter for Python-based stdio servers."""
+    if command.lower() in {"python", "python.exe"}:
+        return sys.executable
+    return command
 
 
 def _format_tool_result(result: types.CallToolResult) -> dict[str, Any]:
