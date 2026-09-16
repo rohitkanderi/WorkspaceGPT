@@ -20,6 +20,7 @@ from mcp.client.streamable_http import streamable_http_client
 from pydantic import BaseModel, Field, ValidationError
 
 logger = logging.getLogger(__name__)
+_BACKEND_ROOT = Path(__file__).resolve().parents[2]
 
 TransportType = Literal["stdio", "sse", "streamable-http"]
 
@@ -392,8 +393,9 @@ class MCPClient:
 
         params = StdioServerParameters(
             command=_stdio_command(config.command),
-            args=config.args,
+            args=_stdio_args(config.args),
             env=_stdio_env(config.env),
+            cwd=_BACKEND_ROOT,
         )
         read_stream, write_stream = await exit_stack.enter_async_context(
             stdio_client(params)
@@ -459,6 +461,20 @@ def _stdio_command(command: str) -> str:
     if command.lower() in {"python", "python.exe"}:
         return sys.executable
     return command
+
+
+def _stdio_args(args: list[str]) -> list[str]:
+    """Resolve existing relative script arguments from the backend root."""
+    resolved: list[str] = []
+    for argument in args:
+        candidate = Path(argument)
+        if not candidate.is_absolute():
+            backend_candidate = (_BACKEND_ROOT / candidate).resolve()
+            if backend_candidate.is_file():
+                resolved.append(str(backend_candidate))
+                continue
+        resolved.append(argument)
+    return resolved
 
 
 def _format_tool_result(result: types.CallToolResult) -> dict[str, Any]:
