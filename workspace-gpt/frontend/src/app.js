@@ -12,6 +12,12 @@ const serversEl = document.querySelector("#servers");
 const toolsEl = document.querySelector("#tools");
 const resultEl = document.querySelector("#result");
 const form = document.querySelector("#tool-form");
+const detailNameEl = document.querySelector("#detail-name");
+const detailDescriptionEl = document.querySelector("#detail-description");
+const detailServerEl = document.querySelector("#detail-server");
+const detailUsageEl = document.querySelector("#detail-usage");
+const toolCountEl = document.querySelector("#tool-count");
+const resultStatusEl = document.querySelector("#result-status");
 const toolsByKey = new Map();
 
 function pretty(value) {
@@ -95,6 +101,31 @@ function toolKey(tool) {
   return `${tool.server_name}:${tool.name}`;
 }
 
+function usageText(tool) {
+  const required = tool?.input_schema?.required || [];
+  if (!required.length) {
+    return "No required arguments. The suggested JSON is ready to cast as-is.";
+  }
+  return `Provide ${required.map((name) => `"${name}"`).join(", ")} before casting this tool.`;
+}
+
+function selectTool(tool) {
+  if (!tool) return;
+  document.querySelector("#tool-name").value = tool.name;
+  document.querySelector("#server-name").value = tool.server_name;
+  document.querySelector("#arguments").value = pretty(sampleArguments(tool.input_schema));
+  detailServerEl.textContent = `${tool.server_name} / discovered instrument`;
+  detailNameEl.textContent = tool.name;
+  detailDescriptionEl.textContent = tool.description || "A capable instrument waiting for your direction.";
+  detailUsageEl.textContent = usageText(tool);
+  document.querySelectorAll(".tool-row").forEach((row) => row.classList.toggle("is-selected", row.dataset.key === toolKey(tool)));
+  const detailPanel = document.querySelector("#tool-detail");
+  detailPanel.classList.remove("is-revealing");
+  void detailPanel.offsetWidth;
+  detailPanel.classList.add("is-revealing");
+  resultStatusEl.textContent = "Ready to cast";
+}
+
 function renderServers(servers) {
   if (!servers.length) {
     serversEl.innerHTML = '<p class="empty">No MCP servers configured.</p>';
@@ -118,20 +149,20 @@ function renderServers(servers) {
 function renderTools(tools) {
   toolsByKey.clear();
   if (!tools.length) {
+    toolCountEl.textContent = "0 tools discovered";
     toolsEl.innerHTML = '<p class="empty">No tools discovered yet.</p>';
     return;
   }
+  toolCountEl.textContent = `${tools.length} tool${tools.length === 1 ? "" : "s"} discovered`;
   toolsEl.innerHTML = tools
     .map((tool) => {
       const key = toolKey(tool);
       toolsByKey.set(key, tool);
       return `
-        <button class="row tool-row" data-key="${escapeHtml(key)}">
-          <span>
-            <strong>${escapeHtml(tool.name)}</strong>
-            <small>${escapeHtml(tool.server_name)}</small>
-          </span>
-          <span>${escapeHtml(tool.description || "")}</span>
+        <button class="tool-row" data-key="${escapeHtml(key)}">
+          <span class="tool-glyph">✧</span>
+          <span class="tool-row-copy"><strong>${escapeHtml(tool.name)}</strong><small>${escapeHtml(tool.server_name)}</small></span>
+          <span class="tool-arrow">→</span>
         </button>
       `;
     })
@@ -156,25 +187,31 @@ async function refresh() {
 document.querySelector("#refresh").addEventListener("click", refresh);
 
 document.querySelector("#connect-all").addEventListener("click", async () => {
-  resultEl.textContent = "Connecting...";
+  resultEl.textContent = "The realms are opening...";
+  resultStatusEl.textContent = "Connecting";
   try {
     await connectServers();
-    resultEl.textContent = "Connected.";
+    resultEl.textContent = "The realms are connected.";
+    resultStatusEl.textContent = "Ready";
     await refresh();
   } catch (error) {
     resultEl.textContent = error.message;
+    resultStatusEl.textContent = "Connection faltered";
   }
 });
 
 document.querySelector("#discover").addEventListener("click", async () => {
-  resultEl.textContent = "Discovering tools...";
+  resultEl.textContent = "The library is opening...";
+  resultStatusEl.textContent = "Discovering";
   try {
     const tools = await discoverTools();
     renderTools(tools);
     await refresh();
-    resultEl.textContent = pretty(tools);
+    resultEl.textContent = "Choose an instrument from the library to begin.";
+    resultStatusEl.textContent = "Standing by";
   } catch (error) {
     resultEl.textContent = error.message;
+    resultStatusEl.textContent = "Discovery faltered";
   }
 });
 
@@ -187,9 +224,7 @@ toolsEl.addEventListener("click", (event) => {
   if (!tool) {
     return;
   }
-  document.querySelector("#tool-name").value = tool.name;
-  document.querySelector("#server-name").value = tool.server_name;
-  document.querySelector("#arguments").value = pretty(sampleArguments(tool.input_schema));
+  selectTool(tool);
 });
 
 serversEl.addEventListener("click", (event) => {
@@ -202,7 +237,8 @@ serversEl.addEventListener("click", (event) => {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  resultEl.textContent = "Running...";
+  resultEl.textContent = "The spell is taking shape...";
+  resultStatusEl.textContent = "Casting...";
   try {
     const serverName = document.querySelector("#server-name").value.trim();
     const toolName = document.querySelector("#tool-name").value.trim();
@@ -211,6 +247,7 @@ form.addEventListener("submit", async (event) => {
     const missing = missingRequiredArguments(tool, args);
     if (missing.length) {
       resultEl.textContent = `Missing required arguments: ${missing.join(", ")}`;
+      resultStatusEl.textContent = "Needs ingredients";
       return;
     }
     const payload = {
@@ -221,8 +258,10 @@ form.addEventListener("submit", async (event) => {
       payload.server_name = serverName;
     }
     resultEl.textContent = pretty(await callTool(payload));
+    resultStatusEl.textContent = "Cast complete";
   } catch (error) {
     resultEl.textContent = error.message;
+    resultStatusEl.textContent = "The spell faltered";
   }
 });
 

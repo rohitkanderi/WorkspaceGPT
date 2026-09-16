@@ -3,53 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WorkspaceGPT</title>
+    <title>WorkspaceGPT | Spellbook</title>
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body>
+    <div class="magic-sky" aria-hidden="true">
+      <span class="star star-one"></span><span class="star star-two"></span>
+      <span class="star star-three"></span><span class="star star-four"></span>
+      <span class="star star-five"></span><span class="comet"></span>
+    </div>
     <header class="topbar">
-      <div>
-        <h1>WorkspaceGPT</h1>
-        <p id="health">Checking backend...</p>
-      </div>
-      <button id="refresh">Refresh</button>
+      <a class="brand" href="/" aria-label="WorkspaceGPT home"><span class="brand-mark">W</span><span><strong>WorkspaceGPT</strong><small>the enchanted workspace</small></span></a>
+      <div class="topbar-actions"><span class="health-pill"><i id="health-dot"></i><span id="health">Checking backend...</span></span><button id="refresh" class="icon-button" title="Refresh workspace" aria-label="Refresh workspace">↻</button></div>
     </header>
-
-    <main class="layout">
-      <section class="panel">
-        <div class="panel-header">
-          <h2>MCP Servers</h2>
-          <button id="connect-all">Connect all</button>
-        </div>
-        <div id="servers" class="list"></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-header">
-          <h2>Tools</h2>
-          <button id="discover">Discover</button>
-        </div>
-        <div id="tools" class="list"></div>
-      </section>
-
-      <section class="panel workspace">
-        <h2>Call Tool</h2>
-        <form id="tool-form">
-          <label>
-            Server
-            <input id="server-name" name="server_name" placeholder="optional" />
-          </label>
-          <label>
-            Tool
-            <input id="tool-name" name="tool_name" placeholder="tool name" required />
-          </label>
-          <label>
-            Arguments JSON
-            <textarea id="arguments" name="arguments" rows="8">{}</textarea>
-          </label>
-          <button type="submit">Run</button>
-        </form>
-        <pre id="result"></pre>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-heading"><div><span class="eyebrow">The library</span><h1>Tools</h1></div><button id="discover" class="small-action" title="Discover tools">✦</button></div>
+        <p class="sidebar-note">Choose an instrument to see its incantation.</p>
+        <div id="tools" class="tool-list"></div>
+        <div class="server-drawer"><div class="section-label"><span>Connected realms</span><button id="connect-all" class="text-button">Connect all</button></div><div id="servers" class="server-list"></div></div>
+      </aside>
+      <section class="content">
+        <div class="content-intro"><div><span class="eyebrow">MCP spellbook / ready room</span><h2>What shall we summon?</h2></div><span class="page-count" id="tool-count">0 tools discovered</span></div>
+        <section class="reveal-panel" id="tool-detail" aria-live="polite"><div class="seal" aria-hidden="true">✦</div><div class="reveal-copy"><span class="eyebrow" id="detail-server">Select a tool from the library</span><h3 id="detail-name">Your next adventure awaits</h3><p id="detail-description">Connect your realms and discover tools to bring the workspace to life.</p><div class="usage-block"><span class="section-label">How to use it</span><p id="detail-usage">Select a tool and its suggested arguments will appear below.</p></div></div><div class="wand-line" aria-hidden="true"></div></section>
+        <section class="workbench"><div class="workbench-heading"><div><span class="eyebrow">The workbench</span><h3>Cast a tool</h3></div><span class="spell-status" id="result-status">Standing by</span></div><form id="tool-form"><div class="field-row"><label>Server<input id="server-name" name="server_name" placeholder="Choose a realm" /></label><label>Tool<input id="tool-name" name="tool_name" placeholder="Choose a tool" required /></label></div><label>Arguments <span class="label-hint">JSON</span><textarea id="arguments" name="arguments" rows="6">{}</textarea></label><div class="form-footer"><button type="submit" class="cast-button"><span>✦</span> Cast tool</button><span class="shortcut-hint">Results appear in the chamber below</span></div></form><pre id="result" aria-live="polite">Your result will appear here.</pre></section>
       </section>
     </main>
 
