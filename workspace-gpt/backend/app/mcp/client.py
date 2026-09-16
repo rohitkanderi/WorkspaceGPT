@@ -173,6 +173,13 @@ class MCPClient:
         if errors and (server_name is not None or len(errors) == len(targets)):
             raise MCPConnectionError("; ".join(errors))
 
+    async def add_server(self, config: MCPServerConfig) -> None:
+        """Register or replace a server definition for this process."""
+        if config.name in self._connections:
+            await self._disconnect_server(config.name)
+        self._configs[config.name] = config
+        self._connections[config.name] = _ServerConnection(config=config)
+
     async def disconnect(self, server_name: str | None = None) -> None:
         """Disconnect from one server or all connected servers."""
         targets = list(self._resolve_server_names(server_name))

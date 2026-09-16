@@ -24,6 +24,14 @@ export function connectServers() {
   return request("/api/mcp/servers/connect", { method: "POST" });
 }
 
+export function addServer(payload) {
+  return request("/api/mcp/servers", {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify(payload),
+  });
+}
+
 export function discoverTools() {
   return request("/api/mcp/tools/discover", { method: "POST" });
 }

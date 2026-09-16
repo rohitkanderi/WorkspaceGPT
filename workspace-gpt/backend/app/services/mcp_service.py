@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.core.config import settings
-from app.mcp.client import MCPClient, MCPServerInfo, MCPToolInfo
+from app.mcp.client import MCPClient, MCPServerConfig, MCPServerInfo, MCPToolInfo
 
 
 class MCPService:
@@ -18,6 +18,10 @@ class MCPService:
     async def connect(self, server_name: str | None = None) -> None:
         """Connect to one configured server or all configured servers."""
         await self._client.connect(server_name)
+
+    async def add_server(self, config: MCPServerConfig) -> None:
+        """Register a server definition for the running process."""
+        await self._client.add_server(config)
 
     async def disconnect(self, server_name: str | None = None) -> None:
         """Disconnect one configured server or all configured servers."""

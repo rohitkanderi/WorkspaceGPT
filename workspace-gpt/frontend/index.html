@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>WorkspaceGPT | Spellbook</title>
     <link rel="stylesheet" href="/assets/styles.css" />
+    <link rel="stylesheet" href="/assets/server-form.css" />
   </head>
   <body>
     <div class="magic-sky" aria-hidden="true">
@@ -22,6 +23,7 @@
         <p class="sidebar-note">Choose an instrument to see its incantation.</p>
         <div id="tools" class="tool-list"></div>
         <div class="server-drawer"><div class="section-label"><span>Connected realms</span><button id="connect-all" class="text-button">Connect all</button></div><div id="servers" class="server-list"></div></div>
+        <section class="add-server"><div class="section-label"><span>Open a new realm</span><span class="server-note">server-side</span></div><p>Add a local command or a remote MCP endpoint.</p><form id="server-form"><label>Name<input id="new-server-name" placeholder="my-tools" required /></label><label>Transport<select id="new-server-transport"><option value="stdio">Command / stdio</option><option value="sse">SSE URL</option><option value="streamable-http">Streamable HTTP</option></select></label><div id="command-fields"><label>Command<input id="new-server-command" placeholder="python" /></label><label>Arguments<input id="new-server-args" placeholder="server.py --port 8000" /></label></div><label id="url-field" hidden>URL<input id="new-server-url" placeholder="https://example.com/mcp" /></label><button type="submit" class="add-server-button">✦ Connect server</button></form><span class="add-server-status" id="server-form-status"></span></section>
       </aside>
       <section class="content">
         <div class="content-intro"><div><span class="eyebrow">MCP spellbook / ready room</span><h2>What shall we summon?</h2></div><span class="page-count" id="tool-count">0 tools discovered</span></div>

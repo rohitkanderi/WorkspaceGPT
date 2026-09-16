@@ -1,5 +1,6 @@
 import {
   callTool,
+  addServer,
   connectServers,
   discoverTools,
   getHealth,
@@ -18,6 +19,11 @@ const detailServerEl = document.querySelector("#detail-server");
 const detailUsageEl = document.querySelector("#detail-usage");
 const toolCountEl = document.querySelector("#tool-count");
 const resultStatusEl = document.querySelector("#result-status");
+const serverForm = document.querySelector("#server-form");
+const transportEl = document.querySelector("#new-server-transport");
+const commandFieldsEl = document.querySelector("#command-fields");
+const urlFieldEl = document.querySelector("#url-field");
+const serverFormStatusEl = document.querySelector("#server-form-status");
 const toolsByKey = new Map();
 
 function pretty(value) {
@@ -185,6 +191,39 @@ async function refresh() {
 }
 
 document.querySelector("#refresh").addEventListener("click", refresh);
+
+transportEl.addEventListener("change", () => {
+  const isStdio = transportEl.value === "stdio";
+  commandFieldsEl.hidden = !isStdio;
+  urlFieldEl.hidden = isStdio;
+});
+
+serverForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  serverFormStatusEl.textContent = "Connecting...";
+  const transport = transportEl.value;
+  const payload = {
+    name: document.querySelector("#new-server-name").value.trim(),
+    transport,
+    enabled: true,
+  };
+  if (transport === "stdio") {
+    payload.command = document.querySelector("#new-server-command").value.trim();
+    payload.args = document.querySelector("#new-server-args").value.trim().split(/\s+/).filter(Boolean);
+  } else {
+    payload.url = document.querySelector("#new-server-url").value.trim();
+  }
+  try {
+    await addServer(payload);
+    serverFormStatusEl.textContent = "Connected. Tools discovered.";
+    serverForm.reset();
+    commandFieldsEl.hidden = false;
+    urlFieldEl.hidden = true;
+    await refresh();
+  } catch (error) {
+    serverFormStatusEl.textContent = error.message;
+  }
+});
 
 document.querySelector("#connect-all").addEventListener("click", async () => {
   resultEl.textContent = "The realms are opening...";

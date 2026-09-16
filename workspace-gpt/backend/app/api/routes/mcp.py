@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.mcp.client import MCPClientError
 from app.schemas import (
+    MCPServerConfigCreate,
     MCPServerRead,
     MCPToolCallRequest,
     MCPToolCallResponse,
@@ -14,6 +15,25 @@ from app.schemas import (
 from app.services import MCPService, get_mcp_service
 
 router = APIRouter(prefix="/mcp", tags=["mcp"])
+
+
+@router.post("/servers", response_model=MCPServerRead, status_code=status.HTTP_201_CREATED)
+async def add_server(
+    request: MCPServerConfigCreate,
+    service: MCPService = Depends(get_mcp_service),
+) -> MCPServerRead:
+    """Register, connect, and discover tools from a new MCP server."""
+    from app.mcp.client import MCPServerConfig
+
+    try:
+        await service.add_server(MCPServerConfig(**request.model_dump()))
+        await service.connect(request.name)
+        await service.discover_tools(request.name)
+    except MCPClientError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    server = next(server for server in service.list_servers() if server.name == request.name)
+    return MCPServerRead.model_validate(server)
 
 
 @router.get("/servers", response_model=list[MCPServerRead])
